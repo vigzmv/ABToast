@@ -6,10 +6,17 @@ ABToast is a simple A/B Testing app that is developed in django. This app implem
 
 ABToast requires [Django](https://www.djangoproject.com/download/) to run.
 
-Get ABToast locally
+Install ABToast from pip
+```sh
+$ pip install django-abtoast
+```
+OR, Get ABToast locally
 ```sh
 $ git clone https://github.com/htadg/ABToast.git ABToast
+$ cd ABToast/
+$ python setup.py install
 ```
+
 Add ABToast to INSTALLED_APPS
 ```python
 INSTALLED_APPS = (
@@ -37,19 +44,36 @@ $ python manage.py migrate
 $ python manage.py createsuperuser
 ```
 Now Create your own new Tests in the Database
+```
+Note: You can also create New Experiment and Tests from the Django Admin Panel
+```
 ```python
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 from ABToast.models import Experiment, Test
 
+
+# Starting the Experiment from today
+start_date = datetime.now()
+# End Date for the Experiment
+# Experiment runs for two months
+end_date = start_date + relativedelta(months=+2)
+
+# Initial Traffic Redirect for the first variant
+initial_traffic = 50 # 50%
+
 # Create an Experiment
-exp = Experiment.objects.create(name="Homepage Test", template_name="registraions/signup.html", goal="registrations/success")
+exp = Experiment.objects.create(name="Homepage Test", template_name="registrations/signup.html", goal="registrations/success", start=start_date, end=end_date, cancelled=False)
 
 # Create two variations of the homepage.
-
+# Currently User can only create two Test instances for a particular Experiment
+# which means currently user can run A/B Testing on only two variants of a Page
 # One Test for the original template
-Test.objects.create(template_name="index.htmregistraions/signup.html",)
+Test.objects.create(template_name="registrations/signup.html", experiment=exp)
 
 # Other Test for the New Variant
-Test.objects.create(template_name="registraions/new_signup.html", experiment=exp)
+Test.objects.create(template_name="registrations/new_signup.html", experiment=exp)
 ```
 Now You can run A/B Test on a view
 ```python
@@ -69,9 +93,9 @@ Do the necessary changes that you feel and send a pull request.
 
 ### Todos
 
- - Multivariate Testing
- - Add Graphical Information
- - Add Bayesian Formula for the Conversion Rates
+ - [ ] Multivariate Testing
+ - [ ] Add Graphical Information
+ - [ ] Add Bayesian Formula for the Conversion Rates
 
 License
 ----
